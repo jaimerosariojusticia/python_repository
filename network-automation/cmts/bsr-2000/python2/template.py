@@ -81,71 +81,18 @@ if remote_conn.recv_ready():
 #===============================================================#
 #   Define and run common DOCSIS CMTS Command(s):
 #===============================================================#
-COMMAND = 'show cable modem cpe'
-remote_conn.send(COMMAND + "\n")
+remote_conn.send("show clock" + "\n")
+remote_conn.send("show version" + "\n")
+remote_conn.send("show system health" + "\n\n")
+remote_conn.send("show system temperature" + "\n\n")
 
+#===============================================================#
+#   Output
 #===============================================================#
 time.sleep(3)
 output = remote_conn.recv(65535)
-output = output.replace(COMMAND,'').replace('bsr#','').strip()
-output = output.replace('Cable  ','Cable__').replace('CM ', 'CM_').replace('CPE ', 'CPE_').replace(' ',';')
-for num in range(0, 9):
-    output = output.replace(';' + str(num) + '\n\r',';' + str(num) + ';')
-output = output.replace('CPE_IP\n\r','CPE_IP;').replace('Count\n\r','Count;')
-for num in range(9, 1, -1):
-    output = output.replace(';' * num,';')
-output = output.replace('CPE_MAC;CPE_IP;','').replace('Interface;PSID;CM_MAC;CM_IP;CPE_Count;Cable__0/0/','')
-output = output.replace('\n\r\n\r','\n\r').replace(';\n\r',';').replace(';D0/','\n\rD0/')
-output = output.upper()
-#
-SPC = ' '
-#
-print (
-    'Interface  PSID    CM_MAC' + SPC * 14 + 'CM_IP' + SPC * 11 +
-    'CPE   CPE_MAC1' + SPC * 12 + 'CPE_IP1' + SPC * 11 +
-    'CPE_MAC2' + SPC * 12 + 'CPE_IP2' + SPC * 11 +
-    'CPE_MAC3' + SPC * 12 + 'CPE_IP3' + SPC * 11
-    )
-print ('-' * 172)
-#
-for line in output.split():
-    line = line.strip()
-    element = line.split(';')
-#
-    INTERFACE = element[0]
-    PSID = element[1]
-    CM_MAC = convertmac.mac2colon(element[2])
-    CM_IP = element[3]
-    CPEC = element[4]
-    CPECOUNT = (int(CPEC))
-#
-    if CPECOUNT == 0:
-        CPE_MAC1 = [' ' * 13]; CPE_IP1 = [' ' * 11]
-        CPE_MAC2 = [' ' * 13]; CPE_IP2 = [' ' * 11]
-        CPE_MAC3 = [' ' * 13]; CPE_IP3 = [' ' * 11]
-    elif CPECOUNT == 1:
-        CPE_MAC1 = convertmac.mac2colon(element[5]); CPE_IP1 = element[6]
-        CPE_MAC2 = [' ' * 13]; CPE_IP2 = [' ' * 11]
-        CPE_MAC3 = [' ' * 13]; CPE_IP3 = [' ' * 11]
-    elif CPECOUNT == 2:
-        CPE_MAC1 = convertmac.mac2colon(element[5]); CPE_IP1 = element[6]
-        CPE_MAC2 = convertmac.mac2colon(element[7]); CPE_IP2 = element[8]
-        CPE_MAC3 = [' ' * 13]; CPE_IP3 = [' ' * 11]
-    elif CPECOUNT == 3:
-        CPE_MAC1 = convertmac.mac2colon(element[5]); CPE_IP1 = element[6]
-        CPE_MAC2 = convertmac.mac2colon(element[7]); CPE_IP2 = element[8]
-        CPE_MAC3 = convertmac.mac2colon(element[9]); CPE_IP3 = element[10]
-#
-    OUTPUT = (
-        str(INTERFACE),
-        str('{:<{}}'.format(PSID, 5)),
-        str('{:<{}}'.format(CM_MAC, 15)), str('{:<{}}'.format(CM_IP, 15)),
-        str('{:<{}}'.format(CPEC, 1)),
-        str('{:<{}}'.format(CPE_MAC1, 15)), str('{:<{}}'.format(CPE_IP1, 15)),
-        str('{:<{}}'.format(CPE_MAC2, 15)), str('{:<{}}'.format(CPE_IP2, 15)),
-        str('{:<{}}'.format(CPE_MAC3, 15)), str('{:<{}}'.format(CPE_IP3, 15)),
-        )
-#   
-    print (str(OUTPUT).replace('(','').replace(')','').replace('"[','').replace(']"','').replace("', '",' ' * 3).replace("'",'').replace(' ' * 90,''))
-#
+output = output.replace('bsr#','')
+
+print (output)
 remote_conn.close()
+exit()
